@@ -47,11 +47,10 @@ const App = () => {
   }
 
   const suggestedQueries = [
-    'What is our work from home policy?',
-    "What's the NASA sales team?",
-    'Does the company own my side project?',
-    'What job openings do we have?',
-    'How does compensation work?',
+    "Explain the changes in Samsung Electronics stock price over the course of the day",
+    "Explain the changes in SK Hynix stock price over the course of the day",
+    "Explain the changes in NVIDIA stock price over the course of the day",
+    "Explain the changes in AMD stock price over the course of the day"
   ]
 
   return (

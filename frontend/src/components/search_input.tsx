@@ -29,7 +29,7 @@ export default function SearchInput({ onSearch, value, appStatus }) {
           }`}
           value={query}
           onChange={handleChange}
-          placeholder="What is on your mind?"
+          placeholder="Ask questions about stock price changes"
         />
         <span className="pointer-events-none absolute left-4">
           <SearchIcon />
