@@ -3,7 +3,7 @@ import { ChatMessageType, SourceType } from 'types'
 import { Loader } from 'components/loader'
 import { Sources } from 'components/chat/sources'
 import { ReactComponent as UserLogo } from 'images/user.svg'
-import { ReactComponent as ElasticLogo } from 'images/elastic_logo.svg'
+import { ReactComponent as ElasticLogo } from 'images/512.svg'
 
 type ChatMessageProps = Omit<ChatMessageType, 'id'> & {
   onSourceClick: (source: string) => void
