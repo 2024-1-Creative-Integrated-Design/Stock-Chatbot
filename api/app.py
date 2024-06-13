@@ -33,8 +33,17 @@ def create_index():
 
     from data import index_data
 
-    index_data.main()
+    index_data.create_index()
 
+@app.cli.command()
+def update_naver_news():
+    """Create or re-create the Elasticsearch index."""
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    sys.path.append(f"{basedir}/../")
+
+    from data import index_data
+
+    index_data.add_naver_news_data()
 
 if __name__ == "__main__":
     app.run(port=3001, debug=True)

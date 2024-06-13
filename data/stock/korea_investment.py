@@ -6,7 +6,7 @@ import os
 import requests
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 key = os.getenv("KOREA_INVESTMENT_API_KEY")
 secret = os.getenv("KOREA_INVESTMENT_API_SECRET")
 acc_no = os.getenv("KOREA_INVESTMENT_ACC_NO")
@@ -156,10 +156,12 @@ def fetch_previous_data(company_name: str, start_day: str, end_day: str, timefra
 def fetch_3years_all(timeframe: str='D', is_adjusted: bool = True) -> dict[str, pd.DataFrame]:
     result = dict() 
     for key in kr_company_list.keys():
-        result[key] = fetch_previous_data(key, "20210101","20240509", timeframe, is_adjusted)
+        result[key] = fetch_previous_data(key, "20210101","20240612", timeframe, is_adjusted)
     for key in us_company_list.keys():
-        result[key] = fetch_previous_data(key, "20210101","20240509", timeframe, is_adjusted)
-    return result
+        result[key] = fetch_previous_data(key, "20210101","20240612", timeframe, is_adjusted)
+    combined_df = pd.concat(result.values(), ignore_index=True)
+    sorted_df = combined_df.sort_values(by='날짜')
+    return sorted_df
 
 
 
@@ -219,9 +221,11 @@ def us_get_previous(company_name: str, end_day: str, timeframe: str ='D', is_adj
 def kr_set_df(response: list, company_name: str) -> pd.DataFrame:
     df = pd.DataFrame(response)
     df['stck_bsop_date'] = pd.to_datetime(df['stck_bsop_date'], format='%Y%m%d')
-    df['company'] = company_name
+    df['company'] = "삼성전자" if company_name == "samsung" else "SK하이닉스"
     df = df[['stck_bsop_date', 'company', 'stck_oprc', 'stck_hgpr', 'stck_lwpr', 'stck_clpr','acml_vol' ]]
-    df.columns = ['날짜','회사명', '시가(₩)', '최고가(₩)', '최저가(₩)', '종가(₩)','거래량']
+    df.columns = ['날짜','회사명', '시가', '최고가', '최저가', '종가','거래량']
+    for col in df.columns[2:]:  
+        df[col] = df[col].astype(str) + '₩'
     return df
 
 def us_set_df(response: list, company_name: str, start_day: str) -> pd.DataFrame:
@@ -230,7 +234,9 @@ def us_set_df(response: list, company_name: str, start_day: str) -> pd.DataFrame
     df['xymd'] = pd.to_datetime(df['xymd'], format='%Y%m%d')
     df['company'] = company_name
     df = df[['xymd','company','open', 'high', 'low', 'clos', 'tvol']]
-    df.columns = ['날짜','회사명', '시가($)', '최고가($)', '최저가($)', '종가($)','거래량']
+    df.columns = ['날짜','회사명', '시가', '최고가', '최저가', '종가','거래량']
+    for col in df.columns[2:]:  
+        df[col] = df[col].astype(str) + '$'
     return df
 
 def get_day_before(date_str: str) -> str:
@@ -244,9 +250,4 @@ if __name__ =="__main__":
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
     dfs = fetch_3years_all()
-
-    # 현재 디렉토리에 CSV 파일 저장
-    dfs["samsung"].to_csv(os.path.join(current_dir, 'samsung.csv'), index=True)
-    dfs["skhynix"].to_csv(os.path.join(current_dir, 'hynix.csv'), index=True)
-    dfs["nvidia"].to_csv(os.path.join(current_dir, 'nvidia.csv'), index=True)
-    dfs["amd"].to_csv(os.path.join(current_dir, 'amd.csv'), index=True)
+    dfs.to_csv(os.path.join(current_dir, 'stock.csv'), index=False)

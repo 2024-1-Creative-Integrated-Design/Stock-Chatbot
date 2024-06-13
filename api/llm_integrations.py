@@ -1,14 +1,16 @@
 from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI
 import os
+from dotenv import load_dotenv
 
+load_dotenv(override=True)
 
 LLM_TYPE = os.getenv("LLM_TYPE", "openai")
 
-def init_gpt4_turbo(temperature):
+def init_gpt4o(temperature):
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     return ChatOpenAI(
-        model="gpt-4-turbo-preview", openai_api_key=OPENAI_API_KEY, streaming=True, temperature=temperature
+        model="gpt-4o", openai_api_key=OPENAI_API_KEY, streaming=True, temperature=temperature
     )
 
 def init_claude3(temperature):
@@ -18,7 +20,7 @@ def init_claude3(temperature):
     )
 
 MAP_LLM_TYPE_TO_CHAT_MODEL = {
-    "openai": init_gpt4_turbo,
+    "openai": init_gpt4o,
     "anthropic": init_claude3
 }
 

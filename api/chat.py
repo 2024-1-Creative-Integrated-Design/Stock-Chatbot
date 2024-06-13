@@ -4,23 +4,27 @@ from elasticsearch_client import (
     elasticsearch_client,
     get_elasticsearch_chat_message_history,
 )
+from langchain_openai import OpenAIEmbeddings
 from flask import render_template, stream_with_context, current_app
 import json
 import os
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
 
 INDEX = os.getenv("ES_INDEX", "workplace-app-docs")
 INDEX_CHAT_HISTORY = os.getenv(
     "ES_INDEX_CHAT_HISTORY", "workplace-app-docs-chat-history"
 )
-ELSER_MODEL = os.getenv("ELSER_MODEL", ".elser_model_2")
 SESSION_ID_TAG = "[SESSION_ID]"
 SOURCE_TAG = "[SOURCE]"
 DONE_TAG = "[DONE]"
 
+embedding = OpenAIEmbeddings(openai_api_key=os.getenv("OPENAI_API_KEY"))
 store = ElasticsearchStore(
     es_connection=elasticsearch_client,
     index_name=INDEX,
-    strategy=ElasticsearchStore.SparseVectorRetrievalStrategy(model_id=ELSER_MODEL),
+    embedding=embedding,
 )
 
 
@@ -51,7 +55,7 @@ def ask_question(question, session_id):
     for doc in docs:
         doc_source = {**doc.metadata, "page_content": doc.page_content}
         current_app.logger.debug(
-            "Retrieved document passage from: %s", doc.metadata["name"]
+            "Retrieved document passage from: %s", doc.metadata["title"]
         )
         yield f"data: {SOURCE_TAG} {json.dumps(doc_source)}\n\n"
 
