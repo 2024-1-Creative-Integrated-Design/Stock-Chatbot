@@ -46,10 +46,10 @@ def get_news_naver(length=100,sort="sim"):
                     for result in naver_results:
                         responses.append({
                             "company": company,
-                            "title": format_title(result['title']),
-                            "link": result['link'],
+                            "name": format_title(result['title']),
+                            "url": result['link'],
                             "content": get_news_text(result['link']),
-                            "date": format_date(result['pubDate']),
+                            "updated_at": format_date(result['pubDate']),
                             "category": "news"
                         })
                 else:

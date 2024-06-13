@@ -55,7 +55,7 @@ def ask_question(question, session_id):
     for doc in docs:
         doc_source = {**doc.metadata, "page_content": doc.page_content}
         current_app.logger.debug(
-            "Retrieved document passage from: %s", doc.metadata["title"]
+            "Retrieved document passage from: %s", doc.metadata["name"]
         )
         yield f"data: {SOURCE_TAG} {json.dumps(doc_source)}\n\n"
 
