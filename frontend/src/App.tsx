@@ -47,10 +47,10 @@ const App = () => {
   }
 
   const suggestedQueries = [
-    "Explain the changes in Samsung Electronics stock price over the course of the day",
-    "Explain the changes in SK Hynix stock price over the course of the day",
-    "Explain the changes in NVIDIA stock price over the course of the day",
-    "Explain the changes in AMD stock price over the course of the day"
+    "오늘의 삼성전자 주가 변동에 대해 설명해줘",
+    "오늘의 SK하이닉스 주가 변동에 대해 설명해줘",
+    "오늘의 NVIDA 주가 변동에 대해 설명해줘",
+    "오늘의 AMD 주가 변동에 대해 설명해줘"
   ]
 
   return (

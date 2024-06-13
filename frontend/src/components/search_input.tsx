@@ -29,7 +29,7 @@ export default function SearchInput({ onSearch, value, appStatus }) {
           }`}
           value={query}
           onChange={handleChange}
-          placeholder="Ask questions about stock price changes"
+          placeholder="삼성전자, SK하이닉스, NVIDIA, AMD 관련 질문을 해보세요"
         />
         <span className="pointer-events-none absolute left-4">
           <SearchIcon />
@@ -50,7 +50,7 @@ export default function SearchInput({ onSearch, value, appStatus }) {
             <span className="mr-2">
               <RefreshIcon width={24} height={24} />
             </span>
-            Start over
+            재전송
           </button>
         )}
       </div>
