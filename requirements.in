@@ -30,3 +30,6 @@ cohere
 exceptiongroup
 importlib-metadata
 numexpr
+
+# Deepeval dependencies
+deepeval
