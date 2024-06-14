@@ -1,0 +1,66 @@
+[
+    {
+        "question": "Why did the stock price of NVIDIA drop on June 10, 2024?",
+        "expected_answer": "The stock price of NVIDIA dropped on June 10, 2024, by 90% due to a 10-for-1 stock split."
+    },
+    {
+        "question": "What caused the stock price of NVIDIA to rise on May 15, 2024?",
+        "expected_answer": "The stock price of NVIDIA rose on May 15, 2024, by 10.77% due to optimism surrounding AI technologies and increased demand for their products."
+    },
+    {
+        "question": "Why did the stock price of NVIDIA increase on August 20, 2023?",
+        "expected_answer": "The stock price of NVIDIA increased on August 20, 2023, by 6.67% following the announcement of their new GPU product, the GeForce RTX 40 series."
+    },
+    {
+        "question": "What led to the stock price drop of NVIDIA on March 10, 2024?",
+        "expected_answer": "The stock price of NVIDIA dropped on March 10, 2024, by 6.90% due to an unexpected earnings report with lower than expected revenue and profits."
+    },
+    {
+        "question": "What caused AMD's stock price to rise on June 12, 2024?",
+        "expected_answer": "AMD's stock price rose on June 12, 2024, by 7.69% due to positive reactions to their AI and data center products, particularly the EPYC server processors."
+    },
+    {
+        "question": "Why did AMD's stock price increase on May 14, 2024?",
+        "expected_answer": "AMD's stock price increased on May 14, 2024, by 6.67% due to strong quarterly earnings reports that exceeded market expectations."
+    },
+    {
+        "question": "What led to the stock price drop of AMD on March 18, 2024?",
+        "expected_answer": "AMD's stock price dropped on March 18, 2024, by 6.19% following a lower than expected earnings report, which indicated poor sales performance of major products."
+    },
+    {
+        "question": "What caused the stock price of AMD to rise on December 22, 2023?",
+        "expected_answer": "AMD's stock price rose on December 22, 2023, by 5.88% due to the launch of their new CPU product, the Ryzen 7000 series, which received positive market reactions."
+    },
+    {
+        "question": "Why did Samsung's stock price drop on October 10, 2023?",
+        "expected_answer": "Samsung's stock price dropped on October 10, 2023, by 6.25% due to declining memory chip prices and weak performance in the semiconductor division, especially in DRAM and NAND Flash."
+    },
+    {
+        "question": "What led to the stock price increase of Samsung on March 15, 2024?",
+        "expected_answer": "Samsung's stock price increased on March 15, 2024, by 5.88% following the announcement of a meaningful reduction in memory chip production, which was seen as a positive step to address supply glut issues."
+    },
+    {
+        "question": "Why did Samsung's stock price rise on June 20, 2024?",
+        "expected_answer": "Samsung's stock price rose on June 20, 2024, by 5.56% due to strong performance in its mobile device and display divisions, particularly with the success of its Galaxy series smartphones."
+    },
+    {
+        "question": "What caused the stock price drop of Samsung on January 18, 2024?",
+        "expected_answer": "Samsung's stock price dropped on January 18, 2024, by 5.00% due to disappointing quarterly earnings, mainly driven by poor performance in the semiconductor division."
+    },
+    {
+        "question": "Why did SK Hynix's stock price rise on November 30, 2023?",
+        "expected_answer": "SK Hynix's stock price rose on November 30, 2023, by 6.85% due to the commencement of mass production of their next-generation HBM3E memory chips, which boosted investor confidence."
+    },
+    {
+        "question": "What led to the stock price increase of SK Hynix on January 31, 2024?",
+        "expected_answer": "SK Hynix's stock price increased on January 31, 2024, by 6.25% following the news of a major supply agreement with key customers such as NVIDIA and AMD."
+    },
+    {
+        "question": "Why did SK Hynix's stock price drop on September 15, 2023?",
+        "expected_answer": "SK Hynix's stock price dropped on September 15, 2023, by 5.88% due to falling memory chip prices, particularly DRAM and NAND Flash, impacting their revenues."
+    },
+    {
+        "question": "What caused the stock price increase of SK Hynix on March 31, 2024?",
+        "expected_answer": "SK Hynix's stock price rose on March 31, 2024, by 6.02% due to the announcement of a significant new contract, expected to drive future revenue growth."
+    }
+]
