@@ -1,10 +1,11 @@
 import mojito
 import pandas as pd
-from datetime import datetime, timedelta
 import time
 import os
 import requests
 from dotenv import load_dotenv
+
+from data.util import convert_date_format, get_day_before
 
 load_dotenv(override=True)
 key = os.getenv("KOREA_INVESTMENT_API_KEY")
@@ -110,14 +111,14 @@ def fetch_today_data(company_name: str) -> pd.DataFrame:
     else:
         raise UnvalidCompanyError
 
-def fetch_previous_data(company_name: str, start_day: str, end_day: str, timeframe: str ='D', is_adjusted: bool = True) -> pd.DataFrame:
+def fetch_previous_data(company_name: str, start_date: str, end_date: str, timeframe: str ='D', is_adjusted: bool = True) -> pd.DataFrame:
     
     """
     특정 기간 동안의 주식 정보 조회
 
     Args:
         company_name: 회사 이름(kr_company_list, us_company_lest의 keys)
-        start_day, end_day: 검색 시작/종료 날짜 ("YYYYMMDD" 형식 ex."20240101")
+        start_date, end_date: 검색 시작/종료 날짜 ("YYYYMMDD" 형식 ex."20240101")
         timeframe: "D" (일), "W" (주), "M" (월)
         is_adjusted: 수정 주가 반영 여부
     
@@ -127,44 +128,44 @@ def fetch_previous_data(company_name: str, start_day: str, end_day: str, timefra
     if company_name in kr_company_list:
         data_lst = []
         while True:
-            data = kr_get_previous(company_name, start_day, end_day, timeframe, is_adjusted)
+            data = kr_get_previous(company_name, start_date, end_date, timeframe, is_adjusted)
             try:
                 day = data[-1]['stck_bsop_date']
             except KeyError:
                 break
             data_lst.extend(data)
-            if start_day < day:
-                end_day = get_day_before(day)
+            if start_date < day:
+                end_date = get_day_before(day)
             else: break
         return kr_set_df(data_lst, company_name)
     elif company_name in us_company_list:
         data_lst = []
         while True:
-             data = us_get_previous(company_name, end_day, timeframe, is_adjusted)
+             data = us_get_previous(company_name, end_date, timeframe, is_adjusted)
              try:
                  day = data[-1]['xymd']
              except KeyError:
                  break
              data_lst.extend(data)
-             if start_day < day:
-                 end_day = get_day_before(day)
+             if start_date < day:
+                 end_date = get_day_before(day)
              else: break
-        return us_set_df(data_lst, company_name, start_day)
+        return us_set_df(data_lst, company_name, start_date)
     else:
         raise UnvalidCompanyError
         
-def fetch_3years_all(timeframe: str='D', is_adjusted: bool = True) -> dict[str, pd.DataFrame]:
+def fetch_all_company_data(start_date: str, end_date: str, timeframe: str='D', is_adjusted: bool = True):
     result = dict() 
     for key in kr_company_list.keys():
-        result[key] = fetch_previous_data(key, "20210101","20240612", timeframe, is_adjusted)
+        result[key] = fetch_previous_data(key, start_date, end_date, timeframe, is_adjusted)
     for key in us_company_list.keys():
-        result[key] = fetch_previous_data(key, "20210101","20240612", timeframe, is_adjusted)
+        result[key] = fetch_previous_data(key, start_date, end_date, timeframe, is_adjusted)
     combined_df = pd.concat(result.values(), ignore_index=True)
     sorted_df = combined_df.sort_values(by='날짜')
+    csv_path = os.path.join(os.path.dirname(__file__), "stock", f'stock_{convert_date_format(start_date)}_to_{convert_date_format(end_date)}.csv')
+    os.makedirs(os.path.dirname(csv_path), exist_ok=True)
+    sorted_df.to_csv(csv_path, index=False)
     return sorted_df
-
-
-
 
 
 kr_real_time_resp = {
@@ -197,13 +198,13 @@ us_real_time_resp = {
     'base' : '전일 종가($)'
 }
 
-def kr_get_previous(company_name: str, start_day: str, end_day: str, timeframe: str ='D', is_adjusted: bool = True) -> list[dict]:
+def kr_get_previous(company_name: str, start_date: str, end_date: str, timeframe: str ='D', is_adjusted: bool = True) -> list[dict]:
     time.sleep(0.1)
     response = kr_analyzer.fetch_ohlcv_domestic (
             symbol = kr_company_list[company_name],
             timeframe = timeframe,
-            start_day = start_day,
-            end_day = end_day,
+            start_day = start_date,
+            end_day = end_date,
             adj_price = is_adjusted
         )
     return response['output2']
@@ -228,26 +229,22 @@ def kr_set_df(response: list, company_name: str) -> pd.DataFrame:
         df[col] = df[col].astype(str) + '₩'
     return df
 
-def us_set_df(response: list, company_name: str, start_day: str) -> pd.DataFrame:
+def us_set_df(response: list, company_name: str, start_date: str) -> pd.DataFrame:
     df = pd.DataFrame(response)
-    df = df[df['xymd'] >= start_day]
+    df = df[df['xymd'] >= start_date]
     df['xymd'] = pd.to_datetime(df['xymd'], format='%Y%m%d')
-    df['company'] = company_name
+    df['company'] = company_name.upper()
     df = df[['xymd','company','open', 'high', 'low', 'clos', 'tvol']]
     df.columns = ['날짜','회사명', '시가', '최고가', '최저가', '종가','거래량']
     for col in df.columns[2:]:  
         df[col] = df[col].astype(str) + '$'
     return df
 
-def get_day_before(date_str: str) -> str:
-    date_obj = datetime.strptime(date_str, "%Y%m%d")
-    day_before = date_obj - timedelta(days=1)
-    day_before_str = day_before.strftime("%Y%m%d")
-    return day_before_str
+
 
 
 if __name__ =="__main__":
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
-    dfs = fetch_3years_all()
-    dfs.to_csv(os.path.join(current_dir, 'stock.csv'), index=False)
+    dfs = fetch_all_company_data(start_date="20210101", end_date="20240612", timeframe="D", is_adjusted=True)
+    

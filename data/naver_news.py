@@ -4,7 +4,7 @@ import requests
 import json
 import re
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 # 환경 변수 로드
@@ -13,7 +13,7 @@ load_dotenv(override=True)
 client_id = os.getenv("NAVER_CLIENT_ID")
 client_secret = os.getenv("NAVER_CLIENT_SECRET")
 
-def get_news_naver(length=100,sort="sim"):
+def get_news_naver(day_before=1,length=100,sort="sim"):
     keywords = {
         "samsung": ["삼성전자", "삼전"],
         "skhynix": ["하이닉스", "하닉"],
@@ -25,7 +25,8 @@ def get_news_naver(length=100,sort="sim"):
 
     display = min(100, length)
     start_from = 1
-    current_date = datetime.now().strftime("%a, %d %b %Y")
+    current_date = datetime.now()
+    start_date = current_date - timedelta(days=day_before)
 
 
     for company in keywords.keys():
@@ -41,22 +42,25 @@ def get_news_naver(length=100,sort="sim"):
                 if rescode == 200:
                     response_body = response.read().decode('utf-8')
                     search_results = json.loads(response_body)
-                    today_results = [item for item in search_results['items'] if current_date in item['pubDate']]
-                    naver_results = [item for item in today_results if item['link'].startswith("https://n.news.naver.com")]
-                    for result in naver_results:
-                        responses.append({
-                            "company": company,
-                            "name": format_title(result['title']),
-                            "url": result['link'],
-                            "content": get_news_text(result['link']),
-                            "updated_at": format_date(result['pubDate']),
-                            "category": "news"
-                        })
+                    for item in search_results['items']:
+                        pubDate = datetime.strptime(item['pubDate'], "%a, %d %b %Y %H:%M:%S %z")
+                        pubDate = pubDate.replace(tzinfo=None)
+                        if start_date <= pubDate <= current_date:
+                            if item['link'].startswith("https://n.news.naver.com"):
+                                responses.append({
+                                    "company": format_company(company),
+                                    "name": format_title(item['title']),
+                                    "url": item['link'],
+                                    "content": get_news_text(item['link']),
+                                    "updated_at": format_date(item['pubDate']),
+                                    "category": "news"
+                                })
                 else:
                         continue
-    current_date = datetime.now().strftime('%Y-%m-%d')
-    file_name = f'{current_date}_news.json'
-    save_path = os.path.join('data', file_name)
+    current_date_str = current_date.strftime('%Y-%m-%d')
+    start_date_str = start_date.strftime('%Y-%m-%d')
+    file_name = f'news_{start_date_str}_to_{current_date_str}.json'
+    save_path = os.path.join(os.path.dirname(__file__), 'news', 'naver', file_name)
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     with open(save_path, 'w') as json_file:
         json.dump(responses, json_file, ensure_ascii=False, indent=4)
@@ -81,6 +85,18 @@ def format_title(text):
     clean = re.sub(r'<[^>]+>', '', text)
     clean = clean.replace('&quot;', '')
     return clean
+
+def format_company(str):
+    if str == 'samsung':
+        return '삼성전자'
+    elif str == 'skhynix':
+        return 'SK하이닉스'
+    elif str == 'nvidia':
+        return 'NVIDIA'
+    elif str == 'amd':  
+        return 'AMD'
+    else:
+        return "unknown"
 
 if __name__ == "__main__":
     get_news_naver()
