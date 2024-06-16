@@ -1,0 +1,74 @@
+[
+    {
+        "company": "AMD",
+        "name": "[AMD]8-K(2023-08-01)",
+        "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248823000135/amd-20230801.htm",
+        "content": "0000002488false00000024882023-08-012023-08-01",
+        "updated_at": "2023-08-01",
+        "category": "edgar"
+    },
+    {
+        "company": "AMD",
+        "name": "[AMD]8-K(2023-08-01)",
+        "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248823000135/amd-20230801.htm",
+        "content": "| Delaware | 001-07882 | 94-1692300 |\n| (State ofIncorporation) | (CommissionFile Number) | (IRS EmployerIdentification Number) |",
+        "updated_at": "2023-08-01",
+        "category": "edgar"
+    },
+    {
+        "company": "AMD",
+        "name": "[AMD]8-K(2023-08-01)",
+        "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248823000135/amd-20230801.htm",
+        "content": "Check the appropriate box below if the Form 8-K filing is intended to simultaneously satisfy the filing obligation of the registrant under any of the following provisions:\n| ☐ | Written communications pursuant to Rule 425 under the Securities Act (17 CFR 230.425) |\n| ☐ | Soliciting material pursuant to Rule 14a-12 under the Exchange Act (17 CFR 240.14a-12) |\n| ☐ | Pre-commencement communications pursuant to Rule 14d-2(b) under the Exchange Act (17 CFR 240.14d-2(b)) |\n| ☐ | Pre-commencement communications pursuant to Rule 13e-4(c) under the Exchange Act (17 CFR 240.13e-4(c)) |",
+        "updated_at": "2023-08-01",
+        "category": "edgar"
+    },
+    {
+        "company": "AMD",
+        "name": "[AMD]8-K(2023-08-01)",
+        "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248823000135/amd-20230801.htm",
+        "content": "Securities registered pursuant to Section 12(b) of the Act:\n| Title of each class | Trading Symbol(s) | Name of each exchange on which registered |\n| Common Stock, $0.01 par value | AMD | The Nasdaq Global Select Market |",
+        "updated_at": "2023-08-01",
+        "category": "edgar"
+    },
+    {
+        "company": "AMD",
+        "name": "[AMD]8-K(2023-08-01)",
+        "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248823000135/amd-20230801.htm",
+        "content": "Indicate by check mark whether the registrant is an emerging growth company as defined in Rule 405 of the Securities Act of 1933 (§230.405 of this chapter) or Rule 12b-2 of the Securities Exchange Act of 1934 (§240.12b-2 of this chapter).   Emerging growth company     ☐ If an emerging growth company, indicate by check mark if the registrant has elected not to use the extended transition period for complying with any new or revised financial accounting standards provided pursuant to Section 13(a) of the Exchange Act. ☐",
+        "updated_at": "2023-08-01",
+        "category": "edgar"
+    },
+    {
+        "company": "AMD",
+        "name": "[AMD]8-K(2023-08-01)",
+        "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248823000135/amd-20230801.htm",
+        "content": "On August 1, 2023, the Company announced its financial position and results of operations as of and for its second quarter ended July 1, 2023 in a press release that is attached hereto as Exhibit 99.1. Attached hereto as Exhibit 99.2 is a presentation regarding the Company's second quarter 2023. The Company will hold a conference call on August 1, 2023 at 2:00 p.m. PT (5:00 p.m. ET) to discuss its second quarter 2023 financial results and forward-looking financial guidance. To supplement the Company’s financial results presented on a U.S. Generally Accepted Accounting Principles (“GAAP”) basis, the Company’s earnings press release and presentation contains non-GAAP financial measures, including non-GAAP gross profit, non-GAAP operating expenses, non-GAAP operating income, non-GAAP net income, non-GAAP diluted earnings per share, adjusted EBITDA and free cash flow. The Company uses a normalized tax rate in its computation of the non-GAAP income tax provision to provide better consistency across the reporting periods. For fiscal 2023, AMD uses a projected non-GAAP tax rate of 13%, which excludes the tax impact of pre-tax non-GAAP adjustments, reflecting currently available information. The Company believes this non-GAAP presentation makes it easier for investors to compare its operating results for current and historical periods and also because the Company believes it assists investors in comparing the Company's performance across reporting periods on a consistent basis by excluding items that it does not believe are indicative of its core operating performance and for the other reasons described in the earnings press release and presentation. The Company’s non-GAAP financial measures should be viewed in addition to and not as a substitute for or superior to the Company's reported results prepared in accordance with GAAP and should be read only in conjunction with AMD’s Consolidated Financial Statements prepared in accordance with GAAP. These non-GAAP financial measures referenced are reconciled to their most directly comparable GAAP financial measures in the data tables at the end of the earnings press release and presentation. The information in this report furnished pursuant to Items 2.02 and 7.01, including Exhibits 99.1 and 99.2 attached hereto, shall not be deemed “filed” for the purposes of Section 18 of the Securities and Exchange Act of 1934, as amended (the “Exchange Act”), or otherwise subject to the liabilities of that section. It may only be incorporated by reference in another filing under the Exchange Act or the Securities Act of 1933, as amended, if such subsequent filing specifically references the information furnished pursuant to Items 2.02 and 7.01 of this report.",
+        "updated_at": "2023-08-01",
+        "category": "edgar"
+    },
+    {
+        "company": "AMD",
+        "name": "[AMD]8-K(2023-08-01)",
+        "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248823000135/amd-20230801.htm",
+        "content": "The information set forth under Item 2.02 “Results of Operations and Financial Condition” is incorporated into this Item 7.01 by reference.",
+        "updated_at": "2023-08-01",
+        "category": "edgar"
+    },
+    {
+        "company": "AMD",
+        "name": "[AMD]8-K(2023-08-01)",
+        "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248823000135/amd-20230801.htm",
+        "content": "| | EXHIBIT INDEX |\n| Exhibit No. | Description |\n| 99.1 | Press Release dated August 1, 2023 |\n| 99.2 | Second Quarter 2023 Financial Results Presentation |\n| 104 | Inline XBRL for the cover page of this Current Report on Form 8-K |",
+        "updated_at": "2023-08-01",
+        "category": "edgar"
+    },
+    {
+        "company": "AMD",
+        "name": "[AMD]8-K(2023-08-01)",
+        "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248823000135/amd-20230801.htm",
+        "content": "Pursuant to the requirements of the Securities Exchange Act of 1934, the registrant has duly caused this report to be signed on its behalf by the undersigned hereunto duly authorized.Date: August 1, 2023ADVANCED MICRO DEVICES, INC.By:/s/ Jean HuName:Jean HuTitle:Executive Vice President, Chief Financial Officer & Treasurer",
+        "updated_at": "2023-08-01",
+        "category": "edgar"
+    }
+]
