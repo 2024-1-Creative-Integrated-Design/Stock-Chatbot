@@ -1,6 +1,6 @@
 from langchain_elasticsearch import ElasticsearchStore
-from .llm_integrations import get_llm
-from .elasticsearch_client import (
+from llm_integrations import get_llm
+from elasticsearch_client import (
     elasticsearch_client,
     get_elasticsearch_chat_message_history,
 )

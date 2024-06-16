@@ -10,3 +10,6 @@ def convert_date_format(date_str):
     date_obj = datetime.strptime(date_str, "%Y%m%d")
     formatted_date_str = date_obj.strftime("%Y-%m-%d")
     return formatted_date_str
+
+def get_current_date():
+    return datetime.now().strftime("%Y%m%d")

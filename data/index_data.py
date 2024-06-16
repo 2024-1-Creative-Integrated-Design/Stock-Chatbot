@@ -10,6 +10,7 @@ import os
 from data.naver_news import get_news_naver
 from data.korea_investment import fetch_all_company_data
 from data.dart import get_filing_list_samsung, get_filing_list_hynix
+from data.edgar import get_filing_list_nvda, get_filing_list_amd
 
 load_dotenv(override=True)
 
@@ -111,4 +112,27 @@ def add_dart_data(start_date, end_date):
 
 
 def add_edgar_data(start_date, end_date):
-    pass
+    print(f"Loading data from edgar")
+    result1 = get_filing_list_nvda(start_date, end_date)
+    result2 = get_filing_list_amd(start_date, end_date)
+    result1.extend(result2)
+    if len(result1)==0:
+        print("No data found")
+        return None
+    else:
+        metadata_keys = ["name", "url", "category", "updated_at"]
+        workplace_docs = []
+        for item in result1:
+            workplace_docs.append(
+                Document(
+                    page_content=item["content"],
+                    metadata={k: item.get(k) for k in metadata_keys},
+                )
+            )
+        print(f"Loaded {len(workplace_docs)} documents")
+        ElasticsearchStore.from_documents(
+            documents=workplace_docs,
+            es_connection=elasticsearch_client,
+            index_name=INDEX,
+            embedding=embedding,
+        )

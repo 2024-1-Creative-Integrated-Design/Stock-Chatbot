@@ -5,7 +5,11 @@ from chat import ask_question
 import os
 import sys
 import click
+import datetime
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(f"{basedir}/../")
+from data import index_data
 from data.util import get_current_date
 
 app = Flask(__name__, static_folder="../frontend/build", static_url_path="/")
@@ -27,49 +31,29 @@ def api_chat():
     session_id = request.args.get("session_id", str(uuid4()))
     return Response(ask_question(question, session_id), mimetype="text/event-stream")
 
-
-
 @app.cli.command()
-@click.option('--length', default=50, help='Start date in YYYYMMDD format')
-@click.option('--day_before', default=1, help='End date in YYYYMMDD format')
+@click.option('--length', default=50)
+@click.option('--day_before', default=1)
 def update_naver_news(length, day_before):
-    basedir = os.path.abspath(os.path.dirname(__file__))
-    sys.path.append(f"{basedir}/../")
-
-    from data import index_data
-
     index_data.add_naver_news_data(length=length, day_before=day_before)
 
 @app.cli.command()
 @click.option('--start_date', default=get_current_date, help='Start date in YYYYMMDD format')
 @click.option('--end_date', default=get_current_date, help='End date in YYYYMMDD format')
 def update_stock(start_date, end_date):
-    basedir = os.path.abspath(os.path.dirname(__file__))
-    sys.path.append(f"{basedir}/../")
-
-    from data import index_data
-
     index_data.add_stock_data(start_date, end_date)
 
 @app.cli.command()
 @click.option('--start_date', default=get_current_date, help='Start date in YYYYMMDD format')
 @click.option('--end_date', default=get_current_date, help='End date in YYYYMMDD format')
 def update_dart(start_date, end_date):
-    basedir = os.path.abspath(os.path.dirname(__file__))
-    sys.path.append(f"{basedir}/../")
-
-    from data import index_data
-
     index_data.add_dart_data(start_date, end_date)
 
 @app.cli.command()
-def update_edgar():
-    basedir = os.path.abspath(os.path.dirname(__file__))
-    sys.path.append(f"{basedir}/../")
-
-    from data import index_data
-
-    index_data.add_edgar_data("20220101", "20220131")
+@click.option('--start_date', default=get_current_date, help='Start date in YYYYMMDD format')
+@click.option('--end_date', default=get_current_date, help='End date in YYYYMMDD format')
+def update_edgar(start_date, end_date):
+    index_data.add_edgar_data(start_date, end_date)
 
 
 if __name__ == "__main__":

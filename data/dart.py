@@ -1,10 +1,13 @@
 import dart_fss as dart
 import os
+import sys
 import openparse
 import json
 from dotenv import load_dotenv
 
-from util import convert_date_format
+basedir = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(basedir, '../'))
+from data.util import convert_date_format
 
 load_dotenv(override=True)
 api_key = os.getenv("DART_API_KEY")
