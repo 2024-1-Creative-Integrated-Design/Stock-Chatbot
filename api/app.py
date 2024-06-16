@@ -4,6 +4,9 @@ from uuid import uuid4
 from chat import ask_question
 import os
 import sys
+import click
+
+from data.util import get_current_date
 
 app = Flask(__name__, static_folder="../frontend/build", static_url_path="/")
 CORS(app)
@@ -25,25 +28,49 @@ def api_chat():
     return Response(ask_question(question, session_id), mimetype="text/event-stream")
 
 
+
 @app.cli.command()
-def create_index():
-    """Create or re-create the Elasticsearch index."""
+@click.option('--length', default=50, help='Start date in YYYYMMDD format')
+@click.option('--day_before', default=1, help='End date in YYYYMMDD format')
+def update_naver_news(length, day_before):
     basedir = os.path.abspath(os.path.dirname(__file__))
     sys.path.append(f"{basedir}/../")
 
     from data import index_data
 
-    index_data.create_index()
+    index_data.add_naver_news_data(length=length, day_before=day_before)
 
 @app.cli.command()
-def update_naver_news():
-    """Create or re-create the Elasticsearch index."""
+@click.option('--start_date', default=get_current_date, help='Start date in YYYYMMDD format')
+@click.option('--end_date', default=get_current_date, help='End date in YYYYMMDD format')
+def update_stock(start_date, end_date):
     basedir = os.path.abspath(os.path.dirname(__file__))
     sys.path.append(f"{basedir}/../")
 
     from data import index_data
 
-    index_data.add_naver_news_data()
+    index_data.add_stock_data(start_date, end_date)
+
+@app.cli.command()
+@click.option('--start_date', default=get_current_date, help='Start date in YYYYMMDD format')
+@click.option('--end_date', default=get_current_date, help='End date in YYYYMMDD format')
+def update_dart(start_date, end_date):
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    sys.path.append(f"{basedir}/../")
+
+    from data import index_data
+
+    index_data.add_dart_data(start_date, end_date)
+
+@app.cli.command()
+def update_edgar():
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    sys.path.append(f"{basedir}/../")
+
+    from data import index_data
+
+    index_data.add_edgar_data("20220101", "20220131")
+
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)

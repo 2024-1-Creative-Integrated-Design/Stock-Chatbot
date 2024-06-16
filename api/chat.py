@@ -20,13 +20,12 @@ SESSION_ID_TAG = "[SESSION_ID]"
 SOURCE_TAG = "[SOURCE]"
 DONE_TAG = "[DONE]"
 
-embedding = OpenAIEmbeddings(openai_api_key=os.getenv("OPENAI_API_KEY"))
+embedding = OpenAIEmbeddings(openai_api_key=os.getenv("OPENAI_API_KEY"), model="text-embedding-3-small")
 store = ElasticsearchStore(
     es_connection=elasticsearch_client,
     index_name=INDEX,
     embedding=embedding,
 )
-
 
 @stream_with_context
 def ask_question(question, session_id):
@@ -70,7 +69,7 @@ def ask_question(question, session_id):
     for chunk in get_llm().stream(qa_prompt):
         content = chunk.content.replace(
             "\n", " "
-        )  # the stream can get messed up with newlines
+        ) 
         yield f"data: {content}\n\n"
         answer += chunk.content
 
