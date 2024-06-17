@@ -30,7 +30,8 @@ cd frontend && yarn && cd ..
 
 ```sh
 # buil frontend
-cd frontend && yarn start
+cd frontend
+yarn build
 
 # Launch API app
 flask run
