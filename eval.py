@@ -7,16 +7,16 @@ import deepeval
 import matplotlib.pyplot as plt
 from uuid import uuid4
 
-# Add the path to the 'api' directory to sys.path
+# 'api' 디렉토리 경로를 sys.path에 추가
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'api')))
 
-from elasticsearch_client import elasticsearch_client, get_elasticsearch_chat_message_history  # import your elasticsearch client
-from llm_integrations import get_llm  # import your LLM integration
+from elasticsearch_client import elasticsearch_client, get_elasticsearch_chat_message_history  # elasticsearch 클라이언트 import
+from llm_integrations import get_llm  # LLM 통합 import
 from langchain_elasticsearch import ElasticsearchStore
 from langchain_openai import OpenAIEmbeddings
 from dotenv import load_dotenv
 
-# Load environment variables
+# 환경 변수 로드
 load_dotenv(override=True)
 
 INDEX = os.getenv("ES_INDEX", "workplace-app-docs")
@@ -33,11 +33,11 @@ store = ElasticsearchStore(
     embedding=embedding,
 )
 
-# Load example dataset
+# 예제 데이터셋 로드
 with open('eval.json', 'r') as f:
     data = json.load(f)
 
-# Initialize G-Eval metrics
+# G-Eval 메트릭 초기화
 correctness_metric = GEval(
     name="Correctness",
     criteria="Determine whether the actual output is factually correct based on the expected output.",
@@ -80,13 +80,13 @@ coherence_metric = GEval(
 )
 
 def ask_question_no_flask(question, session_id):
-    # Use print statements for logging
+    # 로깅을 위한 출력문 사용
     print("Chat session ID:", session_id)
 
     chat_history = get_elasticsearch_chat_message_history(INDEX_CHAT_HISTORY, session_id)
 
     if len(chat_history.messages) > 0:
-        # Create a condensed question
+        # 간결한 질문 생성
         condense_question_prompt = f"Condense this conversation: {chat_history.messages} and answer the question: {question}"
         condensed_question = get_llm().invoke(condense_question_prompt).content
     else:
@@ -99,7 +99,7 @@ def ask_question_no_flask(question, session_id):
     for doc in docs:
         doc_source = {**doc.metadata, "page_content": doc.page_content}
         print("Retrieved document passage from:", doc.metadata["name"])
-        # TODO: Process doc_source if needed
+        # 필요시 doc_source 처리
 
     qa_prompt = f"Use the following documents: {docs} and answer the question: {question}"
 
@@ -115,74 +115,88 @@ def ask_question_no_flask(question, session_id):
 
     return answer
 
-# Variables to store evaluation results for visualization
+# 평가 결과 시각화를 위한 변수
 scores_correctness = []
 scores_relevance = []
 scores_fluency = []
 scores_coherence = []
 labels = []
 
-# Process each example
+# 각 예제 처리
 for example in data:
     question = example['question']
     expected_answer = example['expected_answer']
 
-    # Get RAG response
+    # RAG 응답 받기
     session_id = str(uuid4())
     actual_response = ask_question_no_flask(question, session_id)
 
-    # Track the event using deepeval
-    event_id = deepeval.track(
-        event_name="Chatbot",
-        model="gpt-4",
-        input=question,
-        response=actual_response,
-        hyperparameters={
-            "prompt template": "Prompt template used",
-            "temperature": 1.0,
-            "chunk size": 500
-        },
-        additional_data={
-            "Example Text": "Additional context or metadata",
-            "Example Link": deepeval.event.api.Link(value="https://example.com"),
-            "Example JSON": {"key": "value"}
+    # deepeval을 사용하여 이벤트 추적
+    try:
+        print("Event data:")
+        print(f"Event Name: Chatbot")
+        print(f"Model: gpt-4")
+        print(f"Input: {question}")
+        print(f"Response: {actual_response}")
+
+        # JSON 데이터 유효성 확인을 위해 출력
+        event_data = {
+            "event_name": "Chatbot",
+            "model": "gpt-4",
+            "input": question,
+            "response": actual_response,
+            "hyperparameters": {
+                "prompt template": "Prompt template used",
+                "temperature": 1.0,
+                "chunk size": 500
+            },
+            "additional_data": {
+                "Example Text": "Additional context or metadata",
+                "Example Link": deepeval.event.api.Link(value="https://example.com"),
+                "Example JSON": {"key": "value"}
+            }
         }
-    )
+        print("Event data being sent to deepeval.track:", json.dumps(event_data, indent=2))
 
-    # Create a test case for evaluation
-    test_case = LLMTestCase(
-        input=question,
-        actual_output=actual_response,
-        expected_output=expected_answer
-    )
+        event_id = deepeval.track(**event_data)
 
-    # Perform the evaluation for each metric
-    correctness_metric.measure(test_case)
-    relevance_metric.measure(test_case)
-    fluency_metric.measure(test_case)
-    coherence_metric.measure(test_case)
+        # Create a test case for evaluation
+        test_case = LLMTestCase(
+            input=question,
+            actual_output=actual_response,
+            expected_output=expected_answer
+        )
 
-    # Print the scores and reasons
-    print(f"Correctness Score for '{question}': {correctness_metric.score} - Reason: {correctness_metric.reason}")
-    print(f"Relevance Score for '{question}': {relevance_metric.score} - Reason: {relevance_metric.reason}")
-    print(f"Fluency Score for '{question}': {fluency_metric.score} - Reason: {fluency_metric.reason}")
-    print(f"Coherence Score for '{question}': {coherence_metric.score} - Reason: {coherence_metric.reason}")
+        # Perform the evaluation for each metric
+        correctness_metric.measure(test_case)
+        relevance_metric.measure(test_case)
+        fluency_metric.measure(test_case)
+        coherence_metric.measure(test_case)
 
-    # Store the results for visualization
-    scores_correctness.append(correctness_metric.score)
-    scores_relevance.append(relevance_metric.score)
-    scores_fluency.append(fluency_metric.score)
-    scores_coherence.append(coherence_metric.score)
-    labels.append(question)
+        # Print the scores and reasons
+        print(f"Correctness Score for '{question}': {correctness_metric.score} - Reason: {correctness_metric.reason}")
+        print(f"Relevance Score for '{question}': {relevance_metric.score} - Reason: {relevance_metric.reason}")
+        print(f"Fluency Score for '{question}': {fluency_metric.score} - Reason: {fluency_metric.reason}")
+        print(f"Coherence Score for '{question}': {coherence_metric.score} - Reason: {coherence_metric.reason}")
 
-    # Send feedback to the development team
-    deepeval.send_feedback(
-        event_id=event_id,
-        provider="user",
-        rating=4,
-        explanation=f"The response was mostly correct, but lacked detail. ({correctness_metric.reason})",
-        expected_response=expected_answer
-    )
+        # Store the results for visualization
+        scores_correctness.append(correctness_metric.score)
+        scores_relevance.append(relevance_metric.score)
+        scores_fluency.append(fluency_metric.score)
+        scores_coherence.append(coherence_metric.score)
+        labels.append(question)
+
+        # Send feedback to the development team
+        deepeval.send_feedback(
+            event_id=event_id,
+            provider="user",
+            rating=4,
+            explanation=f"The response was mostly correct, but lacked detail. ({correctness_metric.reason})",
+            expected_response=expected_answer
+        )
+
+    except Exception as e:
+        print(f"Error occurred: {e}")
 
 # Visualize evaluation metrics
 plt.figure(figsize=(10, 5))
