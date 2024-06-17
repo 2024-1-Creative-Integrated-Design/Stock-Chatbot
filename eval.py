@@ -1,10 +1,37 @@
+import sys
+import os
 import json
 from deepeval.metrics import GEval
 from deepeval.test_case import LLMTestCaseParams, LLMTestCase
 import deepeval
 import matplotlib.pyplot as plt
 from uuid import uuid4
-from api.chat import ask_question
+
+# Add the path to the 'api' directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'api')))
+
+from elasticsearch_client import elasticsearch_client, get_elasticsearch_chat_message_history  # import your elasticsearch client
+from llm_integrations import get_llm  # import your LLM integration
+from langchain_elasticsearch import ElasticsearchStore
+from langchain_openai import OpenAIEmbeddings
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv(override=True)
+
+INDEX = os.getenv("ES_INDEX", "workplace-app-docs")
+INDEX_CHAT_HISTORY = os.getenv("ES_INDEX_CHAT_HISTORY", "workplace-app-docs-chat-history")
+DEEPEVAL_API_KEY = os.getenv("DEEPEVAL_API_KEY")
+SESSION_ID_TAG = "[SESSION_ID]"
+SOURCE_TAG = "[SOURCE]"
+DONE_TAG = "[DONE]"
+
+embedding = OpenAIEmbeddings(openai_api_key=os.getenv("OPENAI_API_KEY"))
+store = ElasticsearchStore(
+    es_connection=elasticsearch_client,
+    index_name=INDEX,
+    embedding=embedding,
+)
 
 # Load example dataset
 with open('eval.json', 'r') as f:
@@ -52,6 +79,42 @@ coherence_metric = GEval(
     evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT],
 )
 
+def ask_question_no_flask(question, session_id):
+    # Use print statements for logging
+    print("Chat session ID:", session_id)
+
+    chat_history = get_elasticsearch_chat_message_history(INDEX_CHAT_HISTORY, session_id)
+
+    if len(chat_history.messages) > 0:
+        # Create a condensed question
+        condense_question_prompt = f"Condense this conversation: {chat_history.messages} and answer the question: {question}"
+        condensed_question = get_llm().invoke(condense_question_prompt).content
+    else:
+        condensed_question = question
+
+    print("Condensed question:", condensed_question)
+    print("Question:", question)
+
+    docs = store.as_retriever().invoke(condensed_question)
+    for doc in docs:
+        doc_source = {**doc.metadata, "page_content": doc.page_content}
+        print("Retrieved document passage from:", doc.metadata["name"])
+        # TODO: Process doc_source if needed
+
+    qa_prompt = f"Use the following documents: {docs} and answer the question: {question}"
+
+    answer = ""
+    for chunk in get_llm().stream(qa_prompt):
+        content = chunk.content.replace("\n", " ")
+        answer += content
+
+    print("Answer:", answer)
+
+    chat_history.add_user_message(question)
+    chat_history.add_ai_message(answer)
+
+    return answer
+
 # Variables to store evaluation results for visualization
 scores_correctness = []
 scores_relevance = []
@@ -63,19 +126,11 @@ labels = []
 for example in data:
     question = example['question']
     expected_answer = example['expected_answer']
-    
+
     # Get RAG response
     session_id = str(uuid4())
-    response_generator = ask_question(question, session_id)
-    
-    # Collect the complete response from the generator
-    actual_response = ""
-    for chunk in response_generator:
-        # Here we filter out any metadata tags
-        if SESSION_ID_TAG in chunk or SOURCE_TAG in chunk or DONE_TAG in chunk:
-            continue
-        actual_response += chunk.replace("data: ", "").strip()
-    
+    actual_response = ask_question_no_flask(question, session_id)
+
     # Track the event using deepeval
     event_id = deepeval.track(
         event_name="Chatbot",
@@ -89,7 +144,7 @@ for example in data:
         },
         additional_data={
             "Example Text": "Additional context or metadata",
-            "Example Link": deepeval.events.api.Link(value="https://example.com"),
+            "Example Link": deepeval.event.api.Link(value="https://example.com"),
             "Example JSON": {"key": "value"}
         }
     )
@@ -106,7 +161,7 @@ for example in data:
     relevance_metric.measure(test_case)
     fluency_metric.measure(test_case)
     coherence_metric.measure(test_case)
-    
+
     # Print the scores and reasons
     print(f"Correctness Score for '{question}': {correctness_metric.score} - Reason: {correctness_metric.reason}")
     print(f"Relevance Score for '{question}': {relevance_metric.score} - Reason: {relevance_metric.reason}")
