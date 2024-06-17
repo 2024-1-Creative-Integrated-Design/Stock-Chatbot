@@ -12,20 +12,31 @@ from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
-INDEX = os.getenv("ES_INDEX", "workplace-app-docs")
-INDEX_CHAT_HISTORY = os.getenv(
-    "ES_INDEX_CHAT_HISTORY", "workplace-app-docs-chat-history"
-)
+NEWS_INDEX = "news"
+STOCK_INDEX = "stock"
+REPORT_INDEX = "report"
+INDEX_CHAT_HISTORY = "chat-history"
 SESSION_ID_TAG = "[SESSION_ID]"
 SOURCE_TAG = "[SOURCE]"
 DONE_TAG = "[DONE]"
 
 embedding = OpenAIEmbeddings(openai_api_key=os.getenv("OPENAI_API_KEY"), model="text-embedding-3-small")
-store = ElasticsearchStore(
+news_store = ElasticsearchStore(
     es_connection=elasticsearch_client,
-    index_name=INDEX,
+    index_name=NEWS_INDEX,
     embedding=embedding,
 )
+stock_store = ElasticsearchStore(
+    es_connection=elasticsearch_client,
+    index_name=STOCK_INDEX,
+    embedding=embedding,
+)
+report_store = ElasticsearchStore(
+    es_connection=elasticsearch_client,
+    index_name=REPORT_INDEX,
+    embedding=embedding,
+)
+
 
 @stream_with_context
 def ask_question(question, session_id):
@@ -50,7 +61,10 @@ def ask_question(question, session_id):
     current_app.logger.debug("Condensed question: %s", condensed_question)
     current_app.logger.debug("Question: %s", question)
 
-    docs = store.as_retriever().invoke(condensed_question)
+    news = news_store.as_retriever().invoke(condensed_question)
+    stock = stock_store.as_retriever(search_kwargs={'k': 2}).invoke(condensed_question)
+    reports = report_store.as_retriever().invoke(condensed_question)
+    docs = news + stock + reports
     for doc in docs:
         doc_source = {**doc.metadata, "page_content": doc.page_content}
         current_app.logger.debug(

@@ -10,6 +10,7 @@ from io import StringIO
 import bs4
 import pandas as pd
 import sec_parser as sp
+import tiktoken
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 amd_folder = os.path.join(current_dir,"disclosure", "amd")
@@ -95,26 +96,19 @@ def parse_report(report):
         return _parse(elements)
 
 def _parse(elements):
+    enc = tiktoken.encoding_for_model("text-embedding-3-small")
     output = []
     i = 0
     while i < len(elements):
         element = elements[i]
+        tokens = enc.encode(element.text)
         if isinstance(element, sp.TextElement):
             if (i + 1 < len(elements)) and isinstance(elements[i + 1], sp.TableElement):
                 combined_text = f"{element.text}\n{_pandas_to_markdown(_html_to_pandas(_unmerge_cells(elements[i + 1].get_source_code())))}"
                 output.append(combined_text)
                 i += 1  
-            elif (i + 1 < len(elements)) and isinstance(elements[i + 1], sp.TextElement):
-                if len(element.text) <= 500:
-                    combined_text = f"{element.text}\n{elements[i + 1].text}"
-                    if len(combined_text) > 10000:
-                        text_chunks = chunk_string(combined_text)
-                        output.extend(text_chunks)
-                    else:
-                        output.append(combined_text)
-                    i += 1
             else:
-                if len(element.text) > 10000:
+                if len(tokens) > 512:
                     text_chunks = chunk_string(element.text)
                     output.extend(text_chunks)
                 else:
@@ -158,16 +152,17 @@ def convert_date_format(date_str):
     formatted_date_str = date_obj.strftime("%Y-%m-%d")
     return formatted_date_str
 
-def chunk_string(string, chunk_size=10000, overlap=1000):
+def chunk_string(string, max_tokens=512, overlap=256):
+    enc = tiktoken.encoding_for_model("text-embedding-3-small")
+    tokens = enc.encode(string)
     chunks = []
-    start = 0
-    while start < len(string):
-        end = start + chunk_size
-        chunk = string[start:end]
+    i = 0
+    while i < len(tokens):
+        chunk = enc.decode(tokens[i:i + max_tokens])
         chunks.append(chunk)
-        start += (chunk_size - overlap)
+        i += max_tokens - overlap
+    
     return chunks
-
 
 if __name__ == "__main__":
     get_filing_list_amd("20230101", "20240101")

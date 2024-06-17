@@ -84,6 +84,7 @@ def format_date(date_str):
 def format_title(text):
     clean = re.sub(r'<[^>]+>', '', text)
     clean = clean.replace('&quot;', '')
+    clean = clean.replace(',', '')
     return clean
 
 def format_company(str):

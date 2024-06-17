@@ -162,6 +162,7 @@ def fetch_all_company_data(start_date: str, end_date: str, timeframe: str='D', i
         result[key] = fetch_previous_data(key, start_date, end_date, timeframe, is_adjusted)
     combined_df = pd.concat(result.values(), ignore_index=True)
     sorted_df = combined_df.sort_values(by='날짜')
+    sorted_df['날짜'] = sorted_df['날짜'].apply(format_date)
     csv_path = os.path.join(os.path.dirname(__file__), "stock", f'stock_{convert_date_format(start_date)}_to_{convert_date_format(end_date)}.csv')
     os.makedirs(os.path.dirname(csv_path), exist_ok=True)
     sorted_df.to_csv(csv_path, index=False)
@@ -240,6 +241,8 @@ def us_set_df(response: list, company_name: str, start_date: str) -> pd.DataFram
         df[col] = df[col].astype(str) + '$'
     return df
 
+def format_date(date):
+    return f"{date.year}년 {date.month}월 {date.day}일"
 
 
 

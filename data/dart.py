@@ -11,6 +11,7 @@ from data.util import convert_date_format
 
 load_dotenv(override=True)
 api_key = os.getenv("DART_API_KEY")
+openai_api_key = os.getenv("OPENAI_API_KEY")
 dart.set_api_key(api_key)
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -77,7 +78,14 @@ def process_report(folder_path, report):
 
 def parse_report(report_path):
     result = []
+    semantic_pipeline = openparse.processing.SemanticIngestionPipeline(
+        openai_api_key=openai_api_key,
+        model="text-embedding-3-small",
+        min_tokens=64,
+        max_tokens=1024,
+    )
     parser = openparse.DocumentParser(
+        processing_pipeline=semantic_pipeline,
         table_args={
             "parsing_algorithm": "pymupdf",
             "table_output_format": "markdown"

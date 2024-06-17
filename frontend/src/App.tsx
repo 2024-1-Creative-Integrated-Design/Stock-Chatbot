@@ -47,10 +47,10 @@ const App = () => {
   }
 
   const suggestedQueries = [
-    "오늘의 삼성전자 주가 변동에 대해 설명해줘",
-    "오늘의 SK하이닉스 주가 변동에 대해 설명해줘",
-    "오늘의 NVIDA 주가 변동에 대해 설명해줘",
-    "오늘의 AMD 주가 변동에 대해 설명해줘"
+    "요즘 NVIDA의 주가가 계속 오르는 이유가 뭐야?",
+    "삼성전자의 주요 사업 부문에 대해서 설명해줘",
+    "2024년 6월 13일 sk하이닉스의 종가가 얼마야?",
+    "AMD의 최근 실적에 대해서 알려줘",
   ]
 
   return (
@@ -107,7 +107,7 @@ const App = () => {
               <div className="h-36 p-6 bg-white rounded-md shadow flex flex-col justify-start items-center gap-4 mt-6">
                 <Logo className="w-16 h-16" />
                 <p className="text-center text-zinc-400 text-sm ">
-                  Looking that up for you...
+                  검색 중입니다...
                 </p>
               </div>
             )}

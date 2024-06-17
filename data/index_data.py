@@ -14,7 +14,9 @@ from data.edgar import get_filing_list_nvda, get_filing_list_amd
 
 load_dotenv(override=True)
 
-INDEX = os.getenv("ES_INDEX", "workplace-app-docs")
+NEWS_INDEX = "news"
+STOCK_INDEX = "stock"
+REPORT_INDEX = "report"
 ELASTIC_CLOUD_ID = os.getenv("ELASTIC_CLOUD_ID")
 ELASTIC_API_KEY = os.getenv("ELASTIC_API_KEY")
 
@@ -45,7 +47,7 @@ def add_naver_news_data(day_before=1, length=50):
     print(f"Loaded {len(workplace_docs)} documents")
 
     text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-        chunk_size=512, chunk_overlap=256
+        model_name="text-embedding-3-small", chunk_size=512, chunk_overlap=256
     )
 
     docs = text_splitter.transform_documents(workplace_docs)
@@ -54,7 +56,7 @@ def add_naver_news_data(day_before=1, length=50):
     ElasticsearchStore.from_documents(
         documents=docs,
         es_connection=elasticsearch_client,
-        index_name=INDEX,
+        index_name=NEWS_INDEX,
         embedding=embedding,
     )
 
@@ -63,13 +65,12 @@ def add_stock_data(start_date, end_date):
     df = fetch_all_company_data(start_date, end_date)
     workplace_docs = []
     for index, row in df.iterrows():
-        row['날짜'] = row['날짜'].strftime('%Y-%m-%d')
         row_str = ', '.join([f"{col} : {row[col]}" for col in df.columns])
         workplace_docs.append(
             Document(
                 page_content=row_str,
                 metadata={
-                    "name": row['회사명'] +"_주가_"+row['날짜'],
+                    "name": row['날짜']+ " " + row['회사명'] +" 주가 정보",
                     "category": "stock",
                     "updated_at": row['날짜']
                 },
@@ -80,7 +81,7 @@ def add_stock_data(start_date, end_date):
     ElasticsearchStore.from_documents(
         documents=workplace_docs,
         es_connection=elasticsearch_client,
-        index_name=INDEX,
+        index_name=STOCK_INDEX,
         embedding=embedding,
     )
 
@@ -106,7 +107,7 @@ def add_dart_data(start_date, end_date):
         ElasticsearchStore.from_documents(
             documents=workplace_docs,
             es_connection=elasticsearch_client,
-            index_name=INDEX,
+            index_name=REPORT_INDEX,
             embedding=embedding,
         )
 
@@ -133,6 +134,6 @@ def add_edgar_data(start_date, end_date):
         ElasticsearchStore.from_documents(
             documents=workplace_docs,
             es_connection=elasticsearch_client,
-            index_name=INDEX,
+            index_name=REPORT_INDEX,
             embedding=embedding,
         )
