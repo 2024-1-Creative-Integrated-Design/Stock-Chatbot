@@ -8,6 +8,7 @@ from langchain_openai import OpenAIEmbeddings
 from flask import render_template, stream_with_context, current_app
 import json
 import os
+from trulens_eval.feedback.provider import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
@@ -19,6 +20,7 @@ INDEX_CHAT_HISTORY = "chat-history"
 SESSION_ID_TAG = "[SESSION_ID]"
 SOURCE_TAG = "[SOURCE]"
 DONE_TAG = "[DONE]"
+EVAL_TAG = "[EVAL]"
 
 embedding = OpenAIEmbeddings(openai_api_key=os.getenv("OPENAI_API_KEY"), model="text-embedding-3-small")
 news_store = ElasticsearchStore(
@@ -65,8 +67,10 @@ def ask_question(question, session_id):
     stock = stock_store.as_retriever(search_kwargs={'k': 2}).invoke(condensed_question)
     reports = report_store.as_retriever().invoke(condensed_question)
     docs = news + stock + reports
+    context=""
     for doc in docs:
         doc_source = {**doc.metadata, "page_content": doc.page_content}
+        context += "source_name: " + doc.metadata['name'] + "\n" + "source_content: " + doc.page_content + "\n"
         current_app.logger.debug(
             "Retrieved document passage from: %s", doc.metadata["name"]
         )
@@ -90,5 +94,14 @@ def ask_question(question, session_id):
     yield f"data: {DONE_TAG}\n\n"
     current_app.logger.debug("Answer: %s", answer)
 
+    index = answer.find("SOURCES:")
+    if index != -1:
+        answer = answer[:index]
+    
+    provider = OpenAI(model_engine="gpt-4o")
+    answer_relevance = provider.relevance(prompt=question, response=answer)
+    context_relevance, context_relevance_reason = provider.context_relevance_with_cot_reasons(question=question, context=context)
+    groundedness, groundedness_reason  = provider.groundedness_measure_with_cot_reasons(source=context, statement=answer)
+    yield f"data: {EVAL_TAG} Context Relavance: {context_relevance}, Groundedness: {groundedness}, Answer Relavance: {answer_relevance}\n\n"
     chat_history.add_user_message(question)
     chat_history.add_ai_message(answer)

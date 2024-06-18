@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react'
 import { ReactComponent as LightBulb } from 'images/light_bulb_icon.svg'
 import { SourceType } from '../types'
-import { SourceIcon } from './source_icon'
 import { SearchResult } from './search_result'
 
 interface SearchResultsProps {

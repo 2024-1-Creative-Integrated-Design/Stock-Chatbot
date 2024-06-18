@@ -23,6 +23,7 @@ enum STREAMING_EVENTS {
   SESSION_ID = '[SESSION_ID]',
   SOURCE = '[SOURCE]',
   DONE = '[DONE]',
+  EVAL = '[EVAL]',
 }
 
 const GLOBAL_STATE: GlobalStateType = {
@@ -99,6 +100,14 @@ const globalSlice = createSlice({
 
       if (source) {
         source.expanded = action.payload.expanded ?? !source.expanded
+      }
+    },
+    setEvalScores: (state, action) => {
+      const messageIndex = state.conversation.findIndex(
+        (c) => c.id === action.payload.id
+      )
+      if (messageIndex !== -1) {
+        state.conversation[messageIndex].evalScores = action.payload.evalScores
       }
     },
     reset: (state) => {
@@ -225,6 +234,14 @@ export const thunkActions = {
                 console.log('error', source, event.data)
                 console.error(e)
               }
+            } else if (event.data.startsWith(STREAMING_EVENTS.EVAL)) {
+              const evalPairs = event.data.replace('[EVAL] ', '').split(', ')
+              const evalScores = {}
+              evalPairs.forEach((pair) => {
+                const [key, value] = pair.split(': ')
+                evalScores[key] = value
+              })
+              dispatch(actions.setEvalScores({ id: conversationId, evalScores }))
             } else if (event.data === STREAMING_EVENTS.DONE) {
               const sources = parseSources(message)
               dispatch(

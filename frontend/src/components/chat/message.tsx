@@ -12,6 +12,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   content,
   isHuman,
   sources,
+  evalScores,
   loading,
   onSourceClick,
 }) => {
@@ -44,6 +45,28 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           {loading && <Loader />}
         </div>
       </div>
+      {!isHuman && evalScores && (
+        <div className={`flex mt-2 gap-2 ${isHuman ? 'justify-end' : ''}`}>
+          {messageIcon}
+          <div
+            className={`w-96 p-4 rounded-md ${
+              isHuman
+                ? 'rounded-br-none text-white bg-blue-500 -order-1'
+                : 'bg-white shadow border-2 border-blue-100 rounded-bl-none text-zinc-700'
+            }`}
+          >
+            <span className="font-bold">Evaluation</span>
+            <div className="whitespace-pre-wrap leading-normal">
+              {Object.entries(evalScores).map(([key, value]) => (
+                <div key={key}>
+                  {key}: {value}
+                  <br />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       {!!sources?.length && (
         <div className="mt-6 gap-2 inline-flex">
           {messageIcon}

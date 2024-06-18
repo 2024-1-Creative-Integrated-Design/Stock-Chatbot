@@ -37,4 +37,7 @@ export type ChatMessageType = {
   isHuman?: boolean
   loading?: boolean
   sources?: SourceType[]
+  evalScores?: {
+    [key: string]: string | number
+  }
 }

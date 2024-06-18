@@ -27,6 +27,7 @@ export const Chat: React.FC<ChatProps> = ({
       <AnswerMessage
         text={summary?.content}
         sources={summary?.sources || []}
+        evalScores={summary?.evalScores}
         onSourceClick={onSourceClick}
       />
     </div>
