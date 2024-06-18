@@ -24,22 +24,17 @@ pip install -r requirements.txt
 cd frontend && yarn && cd ..
 ```
 
-#### Ingest data
-
-
-```sh
-flask create-index
-```
 
 
 #### Run API and frontend
 
 ```sh
+# buil frontend
+cd frontend
+yarn build
+
 # Launch API app
 flask run
-
-# In a separate terminal launch frontend app
-cd frontend && yarn start
 ```
 
 You can now access the frontend at http://localhost:5000.
