@@ -8,8 +8,14 @@ from langchain_openai import OpenAIEmbeddings
 from flask import render_template, stream_with_context, current_app
 import json
 import os
+import sys
 from trulens_eval.feedback.provider import OpenAI
+from langchain_core.tools import tool
 from dotenv import load_dotenv
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(f"{basedir}/../")
+from data import korea_investment
 
 load_dotenv(override=True)
 
@@ -75,12 +81,14 @@ def ask_question(question, session_id):
             "Retrieved document passage from: %s", doc.metadata["name"]
         )
         yield f"data: {SOURCE_TAG} {json.dumps(doc_source)}\n\n"
-
+    stock_info = korea_investment.fetch_real_time_all()
+    
     qa_prompt = render_template(
         "rag_prompt.txt",
         question=question,
         docs=docs,
         chat_history=chat_history.messages,
+        stock_info=stock_info,
     )
 
     answer = ""
@@ -95,13 +103,19 @@ def ask_question(question, session_id):
     current_app.logger.debug("Answer: %s", answer)
 
     index = answer.find("SOURCES:")
+    sources = None
     if index != -1:
-        answer = answer[:index]
-    
-    provider = OpenAI(model_engine="gpt-4o")
-    answer_relevance = provider.relevance(prompt=question, response=answer)
-    context_relevance, context_relevance_reason = provider.context_relevance_with_cot_reasons(question=question, context=context)
-    groundedness, groundedness_reason  = provider.groundedness_measure_with_cot_reasons(source=context, statement=answer)
-    yield f"data: {EVAL_TAG} Context Relavance: {context_relevance}, Groundedness: {groundedness}, Answer Relavance: {answer_relevance}\n\n"
+        sources = answer[index + len("SOURCES:"):].strip()
+        answer = answer[:index].strip()
+
+    if sources:
+        provider = OpenAI(model_engine="gpt-4o")
+        answer_relevance = provider.relevance(prompt=question, response=answer)
+        context_relevance, context_relevance_reason = provider.context_relevance_with_cot_reasons(question=question, context=context)
+        groundedness, groundedness_reason  = provider.groundedness_measure_with_cot_reasons(source=context, statement=answer)
+        yield f"data: {EVAL_TAG} Context Relavance: {context_relevance}, Groundedness: {groundedness}, Answer Relavance: {answer_relevance}\n\n"
+
     chat_history.add_user_message(question)
     chat_history.add_ai_message(answer)
+
+

@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import { SourceIcon } from './source_icon'
 import { SourceType } from '../types'
 import { ReactComponent as ArrowDown } from 'images/chevron_down_icon.svg'
-
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 interface SearchResultProps extends SourceType {
   toggleSource: (source: string) => void
 }
@@ -33,6 +34,32 @@ export const SearchResult: React.FC<SearchResultProps> = ({
   }, [summary])
 
   const updatedAtDate = new Date(updated_at || '')
+
+  const renderMarkdown = (text: string) => (
+    <ReactMarkdown
+      children={text}
+      remarkPlugins={[remarkGfm]}
+      components={{
+        table: ({node, ...props}) => (
+          <table style={{borderCollapse: 'collapse', width: '100%'}} {...props} />
+        ),
+        th: ({node, ...props}) => (
+          <th style={{border: '1px solid black', padding: '8px', textAlign: 'left'}} {...props} />
+        ),
+        td: ({node, ...props}) => (
+          <td style={{border: '1px solid black', padding: '8px'}} {...props} />
+        ),
+      }}
+    />
+  );
+
+  const splitText = (text: string) => {
+    const parts = text.split('\n\n');
+    return parts.map((part, index) => {
+      const isTable = part.includes('|');
+      return isTable ? renderMarkdown(part) : <p key={index}>{part}</p>;
+    });
+  };
 
   return (
     <div className="flex flex-col">
@@ -77,7 +104,7 @@ export const SearchResult: React.FC<SearchResultProps> = ({
                 Snippet
               </span>
               <p className="text-sm mb-2 overflow-ellipsis text-black">
-                ...{text}
+                {splitText(text)}
               </p>
             </React.Fragment>
           ))}

@@ -57,6 +57,14 @@ def fetch_real_time(company_name: str) -> dict:
         return result
     else:
         raise UnvalidCompanyError
+    
+def fetch_real_time_all():
+    result = dict()
+    result['삼성전자'] = fetch_real_time('samsung')
+    result['하이닉스'] = fetch_real_time('skhynix')
+    result['NVIDIA'] = fetch_real_time('nvidia')
+    result['AMD'] = fetch_real_time('amd')
+    return result
 
 def fetch_today_data(company_name: str) -> pd.DataFrame:
     
@@ -186,7 +194,7 @@ kr_real_time_resp = {
     'eps'       : 'EPS',
     'bps'       : 'BPS',
     'frgn_ntby_qty' : '외국인 순매수 수량',
-    'pgtr_ntby_qty' : '프로그램매맴 순매수 수량',
+    'pgtr_ntby_qty' : '프로그램 순매수 수량',
     'frgn_hldn_qty' : '외국인 보유 수량'
 }
 

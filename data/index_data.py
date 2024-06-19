@@ -11,6 +11,7 @@ from data.naver_news import get_news_naver
 from data.korea_investment import fetch_all_company_data
 from data.dart import get_filing_list_samsung, get_filing_list_hynix
 from data.edgar import get_filing_list_nvda, get_filing_list_amd
+from data.alpha_vantage import fetch_all
 
 load_dotenv(override=True)
 
@@ -135,5 +136,23 @@ def add_edgar_data(start_date, end_date):
             documents=workplace_docs,
             es_connection=elasticsearch_client,
             index_name=REPORT_INDEX,
+            embedding=embedding,
+        )
+
+    def add_alphavantage_data(start_date, end_date):
+        print(f"Loading data from news")
+        result = fetch_all(start_date, end_date)
+        print(f"Loaded {len(result)} documents")
+
+        text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+            model_name="text-embedding-3-small", chunk_size=512, chunk_overlap=256
+        )
+        docs = text_splitter.transform_documents(result)
+        print(f"Split {len(result)} documents into {len(docs)} chunks")
+        
+        ElasticsearchStore.from_documents(
+            documents=docs,
+            es_connection=elasticsearch_client,
+            index_name=NEWS_INDEX,
             embedding=embedding,
         )
