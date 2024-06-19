@@ -96,8 +96,10 @@ def ask_question_no_flask(question, session_id):
     print("Question:", question)
 
     docs = store.as_retriever().invoke(condensed_question)
+    retrieved_context = []
     for doc in docs:
         doc_source = {**doc.metadata, "page_content": doc.page_content}
+        retrieved_context.append(doc.page_content)
         print("Retrieved document passage from:", doc.metadata["name"])
         # 필요시 doc_source 처리
 
@@ -113,7 +115,21 @@ def ask_question_no_flask(question, session_id):
     chat_history.add_user_message(question)
     chat_history.add_ai_message(answer)
 
-    return answer
+    return answer, retrieved_context
+
+
+def track_event(event_data):
+    try:
+        # JSON 데이터 유효성 검사
+        json_data = json.dumps(event_data, indent=2)
+        print("Event data being sent to deepeval.track:", json_data)
+
+        event_id = deepeval.track(**event_data)
+        return event_id
+    except ValueError as e:
+        print(f"JSON Error: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
 
 # 평가 결과 시각화를 위한 변수
 scores_correctness = []
@@ -129,22 +145,16 @@ for example in data:
 
     # RAG 응답 받기
     session_id = str(uuid4())
-    actual_response = ask_question_no_flask(question, session_id)
+    actual_response, retrieved_context = ask_question_no_flask(question, session_id)
 
     # deepeval을 사용하여 이벤트 추적
     try:
-        print("Event data:")
-        print(f"Event Name: Chatbot")
-        print(f"Model: gpt-4")
-        print(f"Input: {question}")
-        print(f"Response: {actual_response}")
-
-        # JSON 데이터 유효성 확인을 위해 출력
         event_data = {
             "event_name": "Chatbot",
             "model": "gpt-4",
             "input": question,
             "response": actual_response,
+            "retrieval_context": retrieved_context,
             "hyperparameters": {
                 "prompt template": "Prompt template used",
                 "temperature": 1.0,
@@ -152,13 +162,13 @@ for example in data:
             },
             "additional_data": {
                 "Example Text": "Additional context or metadata",
-                "Example Link": deepeval.event.api.Link(value="https://example.com"),
+                "Example Link": "https://example.com",
                 "Example JSON": {"key": "value"}
             }
         }
-        print("Event data being sent to deepeval.track:", json.dumps(event_data, indent=2))
 
-        event_id = deepeval.track(**event_data)
+        # 이벤트 추적 함수 호출
+        event_id = track_event(event_data)
 
         # Create a test case for evaluation
         test_case = LLMTestCase(
@@ -185,15 +195,6 @@ for example in data:
         scores_fluency.append(fluency_metric.score)
         scores_coherence.append(coherence_metric.score)
         labels.append(question)
-
-        # Send feedback to the development team
-        deepeval.send_feedback(
-            event_id=event_id,
-            provider="user",
-            rating=4,
-            explanation=f"The response was mostly correct, but lacked detail. ({correctness_metric.reason})",
-            expected_response=expected_answer
-        )
 
     except Exception as e:
         print(f"Error occurred: {e}")
