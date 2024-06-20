@@ -1,0 +1,29 @@
+# Elastic Cloud credentials
+ELASTIC_CLOUD_ID=
+ELASTIC_API_KEY=
+
+# ELASTICSEARCH_URL=
+
+# OpenAI
+LLM_TYPE=openai
+OPENAI_API_KEY=
+
+# Anthropic
+# LLM_TYPE=anthropic
+# ANTHROPIC_API_KEY=
+
+# Korea_investment_api_key
+KOREA_INVESTMENT_API_KEY=
+KOREA_INVESTMENT_API_SECRET=
+KOREA_INVESTMENT_ACC_NO=
+
+#dart_api_key
+DART_API_KEY=
+
+#naver_api_key
+NAVER_CLIENT_ID=
+NAVER_CLIENT_SECRET=
+
+#alphavantage_api_key
+ALPHA_VANTAGE_API_KEY=
+
