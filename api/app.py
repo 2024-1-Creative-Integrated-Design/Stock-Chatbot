@@ -55,6 +55,13 @@ def update_dart(start_date, end_date):
 def update_edgar(start_date, end_date):
     index_data.add_edgar_data(start_date, end_date)
 
+@app.cli.command()
+@click.option('--start_date', default=get_current_date, help='Start date in YYYYMMDD format')
+@click.option('--end_date', default=get_current_date, help='End date in YYYYMMDD format')
+def update_alphavantage(start_date, end_date):
+    index_data.add_alphavantage_data(start_date, end_date)
+
+
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
