@@ -36,5 +36,5 @@ yarn build
 # Launch API app
 flask run
 ```
-
-You can now access the frontend at http://localhost:5000.
+Before you run the program, you should set your .env file based on env_example_file
+After that, you can access the frontend at http://localhost:5000.
